@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди соответствие - Русские поговорки</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dancing Script', cursive;
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 50%, #f0e6d2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #5d4037;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(93, 64, 55, 0.2);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 3.5rem;
+            color: #8d6e63;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 rgba(141, 110, 99, 0.1);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #795548;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .timer-container {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #8d6e63;
+            margin-bottom: 15px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 280px;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(93, 64, 55, 0.15);
+            border: 3px dashed #8d6e63;
+        }
+
+        .column-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #795548;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-family: 'Caveat', cursive;
+        }
+
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #a1887f;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            border-color: #8d6e63;
+        }
+
+        .item.selected {
+            border-color: #4caf50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+            background: #e8f5e9;
+        }
+
+        .item.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+            animation: bounce 0.5s ease;
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .item.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+            animation: shake 0.5s ease;
+        }
+
+        .item::before {
+            content: '✨';
+            position: absolute;
+            left: 10px;
+            opacity: 0.3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalSlideIn 0.4s ease-out;
+        }
+
+        .modal h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 2.2rem;
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+
+        .modal p {
+            font-size: 1.2rem;
+            color: #795548;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .modal-btn.try-again {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+        }
+
+        .modal-btn.restart {
+            background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .results-screen h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 2.5rem;
+            color: #8d6e63;
+            margin-bottom: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .results-text {
+            font-size: 1.8rem;
+            color: #795548;
+            margin: 30px 0;
+            line-height: 1.6;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(230, 81, 0, 0.4);
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(230, 81, 0, 0.6);
+        }
+
+        /* Фейерверк */
+        .firework-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+        }
+
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transform-origin: center;
+        }
+
+        .firework-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            opacity: 1;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes particleFly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .columns {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .column {
+                min-width: 100%;
+            }
+
+            .item {
+                font-size: 1rem;
+                padding: 12px;
+            }
+            
+            .results-text {
+                font-size: 1.5rem;
+            }
+        }
+
+        .progress-indicator {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #795548;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #8d6e63;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Найди соответствие ✨</h1>
+            <p class="subtitle" id="game-instruction">Сопоставьте русские поговорки с их правильными значениями. Выберите поговорку, затем выберите соответствующее значение. Удачи! 🎯</p>
+        </div>
+
+        <div class="game-container">
+            <div class="timer-container">
+                ⏰ Время: <span id="timer">00:00</span>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <div class="column-title">🎭 Поговорки</div>
+                    <div class="items-container" id="proverbs-column">
+                        <!-- Поговорки будут добавлены через JavaScript -->
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="column-title">📖 Значения</div>
+                    <div class="items-container" id="meanings-column">
+                        <!-- Значения будут добавлены через JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-indicator">
+                Правильных ответов: <span id="score">0</span> из <span id="total">14</span>
+            </div>
+
+            <div class="hint-text">
+                💡 Подсказка: Внимательно читайте каждую поговорку и её значение!
+            </div>
+        </div>
+
+        <div class="results-screen" id="results-screen">
+            <h2>🎉 Поздравляем! 🎉</h2>
+            <p class="results-text" id="results-text"></p>
+            <button class="restart-btn" onclick="resetGame()">Начать заново 🔄</button>
+        </div>
+    </div>
+
+    <div class="firework-container" id="firework-container"></div>
+
+    <div class="modal" id="error-modal">
+        <div class="modal-content">
+            <h2>❌ Ошибка!</h2>
+            <p>К сожалению, это неправильное соответствие. Попробуйте снова!</p>
+            <div class="modal-buttons">
+                <button class="modal-btn try-again" onclick="closeModal()">Выбрать другой ответ</button>
+                <button class="modal-btn restart" onclick="resetGame()">Начать сначала</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ТОЧНЫЕ ПАРЫ ПОГОВОРОК И ЗНАЧЕНИЙ
+        const gameData = [
+            {
+                proverb: "Голод не тётка",
+                meaning: "Нечто не может ждать удобного момента и требует удовлетворения."
+            },
+            {
+                proverb: "Губа не дура",
+                meaning: "Про человека, выбравшего для себя самое лучшее, выгодное"
+            },
+            {
+                proverb: "Два сапога пара и оба левые",
+                meaning: "Про похожих людей, и оба неправы"
+            },
+            {
+                proverb: "За двумя зайцами погонишься — ни одного не поймаешь",
+                meaning: "Нельзя успешно заниматься несколькими делами одновременно"
+            },
+            {
+                proverb: "Лиха беда начало",
+                meaning: "Самое трудное — начать"
+            },
+            {
+                proverb: "Бабушка надвое сказала",
+                meaning: "Прогноз или совет неопределённы, двусмысленны"
+            },
+            {
+                proverb: "Хоть кол на голове теши",
+                meaning: "Крайнее упрямство"
+            },
+            {
+                proverb: "Дорога ложка к обеду",
+                meaning: "Важна своевременная помощь"
+            },
+            {
+                proverb: "За битого двух небитых дают",
+                meaning: "Испытанный жизнью человек ценнее двух неопытных"
+            },
+            {
+                proverb: "Курочка по зёрнышку клюёт, а весь двор в помёте",
+                meaning: "О скрытом вреде мелких поступков"
+            },
+            {
+                proverb: "Не всё коту масленица",
+                meaning: "Неизбежность перемен"
+            },
+            {
+                proverb: "Ни рыба, ни мясо",
+                meaning: "Неопределённое состояние"
+            },
+            {
+                proverb: "Новая метла по-новому метёт, а как сломается — под лавкой валяется",
+                meaning: "Кратковременность новаторства"
+            },
+            {
+                proverb: "Палка о двух концах",
+                meaning: "Ситуация или предмет, имеющий две противоположные стороны"
+            }
+        ];
+
+        // Глобальные переменные игры
+        let selectedProverb = null;
+        let selectedMeaning = null;
+        let correctMatches = 0;
+        let timer = null;
+        let seconds = 0;
+        let gameStarted = false;
+        let matchedPairs = new Set();
+
+        // Инициализация игры
+        function initGame() {
+            const pairs = gameData.map((item, index) => ({
+                id: index,
+                proverb: item.proverb,
+                meaning: item.meaning
+            }));
+
+            const shuffledProverbs = [...pairs].sort(() => Math.random() - 0.5);
+            const shuffledMeanings = [...pairs].sort(() => Math.random() - 0.5);
+
+            const proverbsColumn = document.getElementById('proverbs-column');
+            proverbsColumn.innerHTML = '';
+            shuffledProverbs.forEach(pair => {
+                const proverbElement = document.createElement('div');
+                proverbElement.className = 'item proverb-item';
+                proverbElement.textContent = pair.proverb;
+                proverbElement.dataset.pairId = pair.id;
+                proverbElement.onclick = () => selectProverb(proverbElement);
+                proverbsColumn.appendChild(proverbElement);
+            });
+
+            const meaningsColumn = document.getElementById('meanings-column');
+            meaningsColumn.innerHTML = '';
+            shuffledMeanings.forEach(pair => {
+                const meaningElement = document.createElement('div');
+                meaningElement.className = 'item meaning-item';
+                meaningElement.textContent = pair.meaning;
+                meaningElement.dataset.pairId = pair.id;
+                meaningElement.onclick = () => selectMeaning(meaningElement);
+                meaningsColumn.appendChild(meaningElement);
+            });
+
+            document.getElementById('total').textContent = gameData.length;
+            document.getElementById('game-instruction').style.display = 'block';
+        }
+
+        // Выбор поговорки
+        function selectProverb(element) {
+            if (element.classList.contains('correct')) return;
+
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+
+            document.querySelectorAll('.proverb-item').forEach(item => {
+                if (!item.classList.contains('correct')) {
+                    item.classList.remove('selected');
+                }
+            });
+
+            element.classList.add('selected');
+            selectedProverb = element;
+            selectedMeaning = null;
+        }
+
+        // Выбор значения
+        function selectMeaning(element) {
+            if (element.classList.contains('correct') || !selectedProverb) return;
+
+            document.querySelectorAll('.meaning-item').forEach(item => {
+                if (!item.classList.contains('correct')) {
+                    item.classList.remove('selected');
+                }
+            });
+
+            element.classList.add('selected');
+            selectedMeaning = element;
+            checkMatch();
+        }
+
+        // Проверка соответствия
+        function checkMatch() {
+            if (selectedProverb.dataset.pairId === selectedMeaning.dataset.pairId) {
+                playSound('correct');
+                selectedProverb.classList.add('correct');
+                selectedMeaning.classList.add('correct');
+                correctMatches++;
+                document.getElementById('score').textContent = correctMatches;
+
+                selectedProverb.classList.remove('selected');
+                selectedMeaning.classList.remove('selected');
+                selectedProverb = null;
+                selectedMeaning = null;
+
+                if (correctMatches === gameData.length) {
+                    endGame();
+                }
+            } else {
+                playSound('incorrect');
+                selectedProverb.classList.add('incorrect');
+                selectedMeaning.classList.add('incorrect');
+                
+                showModal();
+                
+                setTimeout(() => {
+                    selectedProverb.classList.remove('incorrect');
+                    selectedMeaning.classList.remove('incorrect');
+                }, 1000);
+            }
+        }
+
+        // Показ модального окна
+        function showModal() {
+            document.getElementById('error-modal').style.display = 'flex';
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('error-modal').style.display = 'none';
+            if (selectedProverb) selectedProverb.classList.remove('selected');
+            if (selectedMeaning) selectedMeaning.classList.remove('selected');
+            selectedProverb = null;
+            selectedMeaning = null;
+        }
+
+        // Запуск таймера
+        function startTimer() {
+            clearInterval(timer);
+            seconds = 0;
+            timer = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent = 
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Завершение игры
+        function endGame() {
+            clearInterval(timer);
+            playSound('complete');
+            
+            document.getElementById('game-instruction').style.display = 'none';
+            
+            const resultsScreen = document.getElementById('results-screen');
+            const resultsText = document.getElementById('results-text');
+            
+            resultsText.textContent = `Вы ответили правильно на ${correctMatches} из ${gameData.length} заданий! Время: ${document.getElementById('timer').textContent}`;
+            
+            document.querySelector('.game-container').style.display = 'none';
+            resultsScreen.style.display = 'block';
+            
+            // Запускаем фейерверк
+            launchFireworks();
+        }
+
+        // Создание красивого фейерверка
+        function launchFireworks() {
+            const container = document.getElementById('firework-container');
+            container.style.display = 'block';
+            container.innerHTML = '';
+
+            // Цвета фейерверка
+            const colors = [
+                '#FF4136', '#0074D9', '#2ECC40', '#FFDC00', 
+                '#B10DC9', '#FF851B', '#39CCCC', '#F012BE',
+                '#7FDBFF', '#01FF70', '#85144b', '#3D9970'
+            ];
+
+            // Запускаем 8 фейерверков с задержкой
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    createFirework(colors, container);
+                }, i * 800);
+            }
+        }
+
+        // Создание одного фейерверка
+        function createFirework(colors, container) {
+            // Случайная позиция запуска (ближе к центру)
+            const startX = 100 + Math.random() * (window.innerWidth - 200);
+            const startY = window.innerHeight;
+            const explodeY = 100 + Math.random() * (window.innerHeight / 2);
+
+            // Создаём ракету
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.left = `${startX}px`;
+            firework.style.top = `${startY}px`;
+            firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            firework.style.boxShadow = '0 0 10px 2px rgba(255, 255, 255, 0.8)';
+            container.appendChild(firework);
+
+            // Анимация полёта ракеты
+            let posY = startY;
+            const rocketSpeed = 8 + Math.random() * 4;
+            const rocketInterval = setInterval(() => {
+                posY -= rocketSpeed;
+                firework.style.top = `${posY}px`;
+                firework.style.boxShadow = `0 0 ${10 + (startY - posY)/10}px 2px rgba(255, 255, 255, 0.8)`;
+
+                // Если достигли точки взрыва
+                if (posY <= explodeY) {
+                    clearInterval(rocketInterval);
+                    
+                    // Создаём частицы взрыва
+                    const particleCount = 40 + Math.floor(Math.random() * 20);
+                    const explosionColor = firework.style.backgroundColor;
+                    
+                    for (let i = 0; i < particleCount; i++) {
+                        createParticle(startX, explodeY, explosionColor, container);
+                    }
+                    
+                    // Удаляем ракету
+                    setTimeout(() => {
+                        firework.remove();
+                    }, 300);
+                }
+            }, 20);
+        }
+
+        // Создание частицы фейерверка
+        function createParticle(x, y, color, container) {
+            const particle = document.createElement('div');
+            particle.className = 'firework-particle';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.backgroundColor = color;
+            particle.style.boxShadow = `0 0 8px 1px ${color}`;
+            
+            // Случайное направление полёта
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 50 + Math.random() * 100;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            particle.style.setProperty('--tx', `${tx}px`);
+            particle.style.setProperty('--ty', `${ty}px`);
+            
+            container.appendChild(particle);
+            
+            // Анимация полёта частицы
+            particle.style.animation = `particleFly ${0.8 + Math.random() * 0.7}s ease-out forwards`;
+            
+            // Удаляем частицу после анимации
+            setTimeout(() => {
+                particle.remove();
+            }, 1500);
+        }
+
+        // Воспроизведение звука
+        function playSound(type) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const audioCtx = new AudioContext();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                switch(type) {
+                    case 'correct':
+                        oscillator.frequency.value = 880;
+                        oscillator.type = 'sine';
+                        gainNode.gain.value = 0.3;
+                        oscillator.start();
+                        setTimeout(() => oscillator.stop(), 200);
+                        break;
+                    case 'incorrect':
+                        oscillator.frequency.value = 220;
+                        oscillator.type = 'sawtooth';
+                        gainNode.gain.value = 0.2;
+                        oscillator.start();
+                        setTimeout(() => oscillator.stop(), 300);
+                        break;
+                    case 'complete':
+                        oscillator.frequency.value = 440;
+                        oscillator.type = 'sine';
+                        gainNode.gain.value = 0.4;
+                        oscillator.start();
+                        setTimeout(() => { oscillator.frequency.value = 550; }, 200);
+                        setTimeout(() => { oscillator.frequency.value = 660; }, 400);
+                        setTimeout(() => oscillator.stop(), 600);
+                        break;
+                }
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        // Сброс игры
+        function resetGame() {
+            selectedProverb = null;
+            selectedMeaning = null;
+            correctMatches = 0;
+            matchedPairs.clear();
+            gameStarted = false;
+            
+            clearInterval(timer);
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('score').textContent = '0';
+            
+            document.getElementById('error-modal').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('firework-container').style.display = 'none';
+            document.getElementById('firework-container').innerHTML = '';
+            
+            document.querySelector('.game-container').style.display = 'flex';
+            
+            initGame();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
