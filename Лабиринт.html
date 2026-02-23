@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабиринт пословиц и поговорок</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Times New Roman', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #5d4037 0%, #3e2723 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            color: #fff;
+        }
+
+        .container {
+            background: linear-gradient(135deg, #f5f5dc 0%, #e6e2c3 100%);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            padding: 25px;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            border: 8px solid #8b4513;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 3px solid #d4af37;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .ornament-top {
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-image: url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 30' preserveAspectRatio='none'><path d='M0,15 Q25,5 50,15 T100,15 T150,15 T200,15' fill='none' stroke='%238b4513' stroke-width='3'/><circle cx='25' cy='15' r='3' fill='%23d4af37'/><circle cx='75' cy='15' r='3' fill='%23d4af37'/><circle cx='125' cy='15' r='3' fill='%23d4af37'/><circle cx='175' cy='15' r='3' fill='%23d4af37'/></svg>");
+            opacity: 0.9;
+        }
+
+        .ornament-bottom {
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-image: url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 30' preserveAspectRatio='none'><path d='M0,15 Q25,25 50,15 T100,15 T150,15 T200,15' fill='none' stroke='%238b4513' stroke-width='3'/><circle cx='25' cy='15' r='3' fill='%23d4af37'/><circle cx='75' cy='15' r='3' fill='%23d4af37'/><circle cx='125' cy='15' r='3' fill='%23d4af37'/><circle cx='175' cy='15' r='3' fill='%23d4af37'/></svg>");
+            opacity: 0.9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #8b4513;
+            font-size: 32px;
+            margin: 15px 0 25px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            letter-spacing: 1px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        h1::after {
+            content: "✨";
+            position: absolute;
+            right: -30px;
+            top: -10px;
+            font-size: 24px;
+            color: #d4af37;
+        }
+
+        h1::before {
+            content: "✨";
+            position: absolute;
+            left: -30px;
+            top: -10px;
+            font-size: 24px;
+            color: #d4af37;
+        }
+
+        .game-info {
+            background: rgba(255, 255, 240, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            color: #333;
+            border: 3px solid #d4af37;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-info h2 {
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-size: 24px;
+            text-align: center;
+            border-bottom: 2px dashed #8b4513;
+            padding-bottom: 10px;
+        }
+
+        .game-info p {
+            margin-bottom: 12px;
+            line-height: 1.7;
+            font-size: 16px;
+            text-align: justify;
+        }
+
+        .game-info p:first-child::first-letter {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8b4513;
+            float: left;
+            line-height: 0.8;
+            margin-right: 8px;
+        }
+
+        .maze {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 4px;
+            background: #d7ccc8;
+            border-radius: 15px;
+            padding: 8px;
+            position: relative;
+            border: 4px solid #8b4513;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f5f5dc 0%, #e9e0c5 100%);
+            border: 2px solid #a08a6a;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            padding: 8px;
+        }
+
+        .cell:hover:not(.start):not(.finish):not(.visited) {
+            transform: scale(1.03);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #e9e0c5 0%, #e0d7b8 100%);
+        }
+
+        .cell.start {
+            background: linear-gradient(135deg, #ffd700 0%, #ffcc00 100%);
+            border-color: #8b4513;
+        }
+
+        .cell.finish {
+            background: linear-gradient(135deg, #4a90e2 0%, #2c5fb3 100%);
+            border-color: #1a3a7a;
+        }
+
+        .cell.visited.correct {
+            background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+            border-color: #2e7d32;
+        }
+
+        .cell.visited.incorrect {
+            background: linear-gradient(135deg, #ef9a9a 0%, #e57373 100%);
+            border-color: #c62828;
+        }
+
+        .cell-content {
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+            font-weight: bold;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .cell-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+            line-height: 1;
+        }
+
+        .character {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffcc80 0%, #ffb74d 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.6);
+            border: 3px solid #8b4513;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #8b4513 0%, #5d2f1a 100%);
+            color: #f5f5dc;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            z-index: 100;
+            max-width: 650px;
+            width: 90%;
+            border: 5px solid #d4af37;
+            display: none;
+        }
+
+        .message h2 {
+            font-size: 34px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .message p {
+            font-size: 20px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ffd700 0%, #ffcc00 100%);
+            color: #8b4513;
+            border: 3px solid #8b4513;
+            padding: 14px 35px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #ffcc00 0%, #ffc300 100%);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+        }
+
+        .pulse {
+            animation: pulse 0.6s;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .hint {
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+            color: #8b4513;
+            font-size: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            h1 {
+                font-size: 26px;
+                margin: 10px 0 20px;
+            }
+            .cell-content {
+                font-size: 12px;
+                padding: 4px;
+            }
+            .cell-icon {
+                font-size: 24px;
+            }
+            .character {
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+            }
+            .game-info {
+                padding: 15px;
+            }
+            .game-info h2 {
+                font-size: 20px;
+            }
+            .message h2 {
+                font-size: 28px;
+            }
+            .message p {
+                font-size: 17px;
+            }
+            .btn {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ornament-top"></div>
+        <div class="ornament-bottom"></div>
+        <h1>Лабиринт пословиц и поговорок</h1>
+        
+        <div class="game-info" id="rules">
+            <h2>📜 Правила игры</h2>
+            <p>Вы оказались в волшебном лабиринте, где спрятана древняя книга мудрости. Ваша задача — найти путь к ней, выбирая только клетки с настоящими русскими пословицами и поговорками.</p>
+            <p>Все тексты видны с самого начала. Кликайте на клетки: если там настоящая пословица — она станет зелёной, если подделка — красной. Персонаж может двигаться только по зелёным клеткам.</p>
+            <p><strong>Важно:</strong> В лабиринте есть несколько правильных путей к финишу! Выбирайте разные маршруты и исследуйте лабиринт.</p>
+            <div class="controls">
+                <button class="btn" onclick="startGame()">Начать приключение</button>
+            </div>
+        </div>
+
+        <div class="maze" id="maze"></div>
+        <div class="character" id="character">🧙</div>
+        <div class="hint">Подсказка: персонаж может двигаться только на соседние зелёные клетки (вверх, вниз, влево, вправо)</div>
+
+        <div class="message" id="winMessage">
+            <h2>🎉 Поздравляем, путник! 🎉</h2>
+            <p>Вы нашли волшебную книгу мудрости и преодолели лабиринт пословиц и поговорок!</p>
+            <p>Теперь ваше ухо чутко различает подлинное народное творчество — вы легко узнаете настоящие пословицы и поговорки среди многочисленных подделок.</p>
+            <button class="btn" onclick="location.reload()">Новое испытание</button>
+        </div>
+    </div>
+
+    <script>
+        // Настоящие русские пословицы и поговорки (проверенные и точные)
+        const proverbs = [
+            "Семь раз отмерь — один отрежь",
+            "Не имей сто рублей, а имей сто друзей",
+            "Что посеешь, то и пожнёшь",
+            "Без труда не вытащишь и рыбку из пруда",
+            "Лучше синица в руках, чем журавль в небе",
+            "Куй железо, пока горячо",
+            "Делу время, потехе час",
+            "В гостях хорошо, а дома лучше",
+            "Не суди о книге по обложке",
+            "Где родился, там и пригодился",
+            "На чужой роток не накинешь платок",
+            "Век живи — век учись",
+            "За двумя зайцами погонишься — ни одного не поймаешь",
+            "Яблоко от яблони недалеко падает",
+            "Утро вечера мудренее",
+            "Тише едешь — дальше будешь",
+            "Не зная броду, не суйся в воду",
+            "С кем поведёшься, от того и наберёшься",
+            "Слово не воробей — вылетит не поймаешь",
+            "Поспешишь — людей насмешишь",
+            "Что написано пером, не вырубишь топором",
+            "Рыбак рыбака видит издалека",
+            "Семь бед — один ответ",
+            "Береги честь смолоду",
+            "Волков бояться — в лес не ходить",
+            "Друг познаётся в беде",
+            "Кто не работает, тот не ест",
+            "Нет дыма без огня",
+            "Один в поле не воин",
+            "После дождичка в четверг",
+            "Работа не волк — в лес не убежит",
+            "Своя ноша не тянет",
+            "Шила в мешке не утаишь",
+            "Чужими руками жар загребать",
+            "Готовь сани летом, а телегу — зимой",
+            "Цыплят по осени считают"
+        ];
+
+        // Подделки (похожие, но НЕ пословицы/поговорки или искажённые варианты)
+        const fakeProverbs = [
+            "Семь раз подумай — один раз скажи",
+            "Не имей сто рублей, а имей сто идей",
+            "Что посеешь, то и соберёшь",
+            "Без труда не вытащишь и кошку из пруда",
+            "Лучше ворона в руках, чем сокол в небе",
+            "Куй гвоздь, пока горячий",
+            "Делу время, отдыху час",
+            "В гостях хорошо, а дома прекрасно",
+            "Не суди о человеке по одежде",
+            "Где родился, там и остался",
+            "На чужой рот не накинешь платок",
+            "Век живи — век люби",
+            "За тремя зайцами погонишься — ни одного не поймаешь",
+            "Груша от яблони недалеко падает",
+            "Утро вечера умнее",
+            "Тише едешь — скорее будешь",
+            "Не зная броду, не лезь в воду",
+            "С кем дружишься, от того и наберёшься",
+            "Слово не птица — вылетит не поймаешь",
+            "Поспешишь — дело испортишь",
+            "Что написано ручкой, не сотрёшь тряпочкой",
+            "Рыбак рыбака замечает издали",
+            "Семь проблем — одно решение",
+            "Береги здоровье смолоду",
+            "Волков бояться — из дома не выходить",
+            "Друг узнаётся в радости",
+            "Кто не работает, тот не спит",
+            "Нет пара без воды",
+            "Один на один не воин",
+            "После дождя в среду",
+            "Работа не собака — домой не убежит",
+            "Чужая ноша не тянет",
+            "Шило в сумке не спрячешь",
+            "Яблоко от груши недалеко падает",
+            "Готовь сани зимой, а телегу — летом",
+            "Цыплят по весне считают"
+        ];
+
+        // Несколько правильных путей к финишу (индексы клеток 6×6)
+        // Все пути ведут от старта (0) к финишу (35)
+        
+        // Путь 1: Левый вертикальный (через левый край)
+        const path1 = [0, 6, 12, 13, 14, 15, 21, 27, 28, 29, 35];
+        
+        // Путь 2: Верхний горизонтальный (через верх)
+        const path2 = [0, 1, 2, 8, 14, 15, 21, 22, 28, 29, 35];
+        
+        // Путь 3: Диагональный (зигзаг через центр)
+        const path3 = [0, 1, 7, 8, 14, 20, 21, 27, 28, 34, 35];
+        
+        // Путь 4: Правый вертикальный (через правый край)
+        const path4 = [0, 6, 7, 13, 19, 20, 26, 27, 33, 34, 35];
+        
+        // Путь 5: Нижний обход (через низ)
+        const path5 = [0, 1, 2, 3, 9, 15, 21, 27, 33, 34, 35];
+        
+        // Объединяем все пути в один массив (без дубликатов)
+        const allCorrectPaths = [...new Set([...path1, ...path2, ...path3, ...path4, ...path5])];
+
+        let currentPosition = 0;
+        let characterPosition = { row: 0, col: 0 };
+        let gameStarted = false;
+        let usedProverbs = new Set();
+        let usedFakes = new Set();
+
+        function startGame() {
+            document.getElementById('rules').classList.add('hidden');
+            document.querySelector('.hint').classList.remove('hidden');
+            createMaze();
+            gameStarted = true;
+            document.getElementById('character').style.display = 'flex';
+            updateCharacterPosition();
+        }
+
+        function createMaze() {
+            const maze = document.getElementById('maze');
+            maze.innerHTML = '';
+            usedProverbs.clear();
+            usedFakes.clear();
+
+            for (let i = 0; i < 36; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+
+                if (i === 0) {
+                    // Старт
+                    cell.classList.add('start');
+                    cell.innerHTML = `
+                        <div class="cell-content">
+                            <div class="cell-icon">🏰</div>
+                            <div>Старт</div>
+                        </div>
+                    `;
+                } else if (i === 35) {
+                    // Финиш
+                    cell.classList.add('finish');
+                    cell.innerHTML = `
+                        <div class="cell-content">
+                            <div class="cell-icon">📚</div>
+                            <div>Книга мудрости</div>
+                        </div>
+                    `;
+                    cell.dataset.correct = 'true';
+                } else {
+                    // Обычная клетка — только текст, без иконки
+                    const isCorrect = allCorrectPaths.includes(i);
+                    const text = isCorrect ? getRandomUniqueProverb() : getRandomUniqueFakeProverb();
+                    
+                    cell.innerHTML = `
+                        <div class="cell-content">
+                            ${text}
+                        </div>
+                    `;
+                    cell.dataset.correct = isCorrect ? 'true' : 'false';
+                }
+
+                cell.addEventListener('click', () => handleCellClick(i));
+                maze.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(index) {
+            if (!gameStarted) return;
+            
+            const cell = document.querySelector(`.cell[data-index="${index}"]`);
+            
+            // Нельзя кликать по уже посещённой клетке (кроме финиша)
+            if (cell.classList.contains('visited') && index !== 35) {
+                return;
+            }
+
+            // Проверяем, соседняя ли клетка с текущей позицией персонажа
+            const currentRow = Math.floor(currentPosition / 6);
+            const currentCol = currentPosition % 6;
+            const newRow = Math.floor(index / 6);
+            const newCol = index % 6;
+            
+            const isAdjacent = (
+                (Math.abs(newRow - currentRow) === 1 && newCol === currentCol) ||
+                (Math.abs(newCol - currentCol) === 1 && newRow === currentRow)
+            );
+
+            if (!isAdjacent) {
+                // Мерцание для недоступной клетки
+                cell.classList.add('pulse');
+                setTimeout(() => {
+                    cell.classList.remove('pulse');
+                }, 600);
+                return;
+            }
+
+            // Отмечаем клетку как посещённую
+            cell.classList.add('visited');
+            const isCorrect = cell.dataset.correct === 'true';
+
+            if (isCorrect) {
+                // Правильная клетка — зелёный цвет
+                cell.classList.add('correct');
+                currentPosition = index;
+                characterPosition = { row: newRow, col: newCol };
+                updateCharacterPosition();
+                
+                // Проверка победы
+                if (index === 35) {
+                    setTimeout(() => {
+                        document.getElementById('winMessage').style.display = 'block';
+                        document.querySelector('.hint').classList.add('hidden');
+                    }, 800);
+                }
+            } else {
+                // Неправильная клетка — красный цвет
+                cell.classList.add('incorrect');
+                // Мерцание ошибки
+                cell.classList.add('pulse');
+                setTimeout(() => {
+                    cell.classList.remove('pulse');
+                }, 600);
+            }
+        }
+
+        function updateCharacterPosition() {
+            const character = document.getElementById('character');
+            const cells = document.querySelectorAll('.cell');
+            const firstCell = cells[0];
+            
+            if (!firstCell) return;
+            
+            const cellRect = firstCell.getBoundingClientRect();
+            const cellSize = cellRect.width;
+            const gap = 4;
+            
+            // Позиция относительно лабиринта
+            const x = characterPosition.col * (cellSize + gap) + cellSize / 2 - 20;
+            const y = characterPosition.row * (cellSize + gap) + cellSize / 2 - 20 + 130;
+            
+            character.style.left = `${x}px`;
+            character.style.top = `${y}px`;
+        }
+
+        function getRandomUniqueProverb() {
+            if (usedProverbs.size >= proverbs.length) {
+                usedProverbs.clear();
+            }
+            
+            let proverb;
+            do {
+                proverb = proverbs[Math.floor(Math.random() * proverbs.length)];
+            } while (usedProverbs.has(proverb) && usedProverbs.size < proverbs.length);
+            
+            usedProverbs.add(proverb);
+            return proverb;
+        }
+
+        function getRandomUniqueFakeProverb() {
+            if (usedFakes.size >= fakeProverbs.length) {
+                usedFakes.clear();
+            }
+            
+            let fake;
+            do {
+                fake = fakeProverbs[Math.floor(Math.random() * fakeProverbs.length)];
+            } while (usedFakes.has(fake) && usedFakes.size < fakeProverbs.length);
+            
+            usedFakes.add(fake);
+            return fake;
+        }
+
+        // Инициализация
+        window.addEventListener('load', () => {
+            document.getElementById('character').style.display = 'none';
+        });
+
+        // Адаптация под изменение размера окна
+        window.addEventListener('resize', () => {
+            if (gameStarted) {
+                updateCharacterPosition();
+            }
+        });
+    </script>
+</body>
+</html>
